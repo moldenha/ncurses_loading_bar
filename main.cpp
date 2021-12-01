@@ -1,11 +1,6 @@
 #include "load.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <vector>
-#include <iostream>
 #include <unistd.h>
-#include <ncurses.h>
 #include <thread>
 
 //g++ main.cpp -o ctest -std=c++11 -pthread -lncurses -Incurses
