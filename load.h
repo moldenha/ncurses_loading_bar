@@ -1,10 +1,10 @@
 #ifndef LOAD_H
 #define LOAD_H
 
-#include <vector>
 #include <string>
 #include <ncurses.h>
 #include <assert.h>
+#include <stdlib.h>
 
 class bar{
 	private:
@@ -154,7 +154,8 @@ std::string bar::construct(float progress, std::string end){
 
 class load{
 	private:
-		std::vector<bar*> bars;
+		//std::vector<bar*> bars;
+		bar ** bars;
 		WINDOW *writeWin;
 		int _bars;
 		int written;
@@ -162,13 +163,17 @@ class load{
 		load(int barAmt, bool write=false);
 		load(int barAmt, int objects, bool write=false);
 		void end();
-		bar *getBar(int b){return bars.at(b);}
+		bar *getBar(int b){
+			assert(b < _bars);
+			return bars[b];
+		}
 };
 
 load::load(int barAmt, bool write)
 	:_bars(barAmt),
 	written(0)
 {
+	bars = (bar**)malloc(sizeof(bar*)*barAmt);
 	initscr();
 	if(write == true){
 		int width = getmaxx(stdscr);
@@ -181,7 +186,7 @@ load::load(int barAmt, bool write)
 		writeWin = NULL;
 
 	for(int i = 0; i < barAmt; i++){
-		bars.push_back(new bar(i, true, 30, &written, writeWin));
+		bars[i] = new bar(i, true, 30, &written, writeWin);
 	}
 }
 
@@ -189,6 +194,7 @@ load::load(int barAmt, int objects, bool write)
 	:_bars(barAmt),
 	written(0)
 {
+	bars = (bar**)malloc(sizeof(bar*)*barAmt);	
 	initscr();
 	if(write == true){
 		int width = getmaxx(stdscr);
@@ -200,16 +206,17 @@ load::load(int barAmt, int objects, bool write)
 	else
 		writeWin = NULL;
 	for(int i = 0; i < barAmt; i++){
-		bars.push_back(new bar(i, true, objects, &written, writeWin));
+		bars[i] = new bar(i, true, objects, &written, writeWin);
 	}
 }
 
 
 void load::end(){
-	for(int i = 0; i < bars.size(); i++){
-		bars.at(i)->end();
-		free(bars.at(i));
+	for(int i = 0; i < _bars; i++){
+		bars[i]->end();
+		free(bars[i]);
 	}
+	free(bars);
 	endwin();
 }
 
